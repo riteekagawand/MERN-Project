@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navbar from './Components/Navbar';
 import Login from './Components/Login';
@@ -22,7 +22,6 @@ const App = () => {
             <Route path="/services" element={<div className="p-4">Services Page</div>} />
             <Route path="/contact" element={<div className="p-4">Contact Page</div>} />
             <Route path="/register" element={<Register />} /> {/* Ensure Register component is rendered */}
-            <Route path="/login" element={<Login onLogin={handleLogin} />} /> {/* Ensure Login component is rendered */}
           </Routes>
         </>
       ) : (
