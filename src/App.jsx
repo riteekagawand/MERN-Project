@@ -1,8 +1,9 @@
-import  { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { useState } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import Navbar from './Components/Navbar';
 import Login from './Components/Login';
-import Register from './Components/Register'; // Ensure Register component is imported
+import Register from './Components/Register';
+import Dashboard from './Components/Dashboard';
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -12,22 +13,26 @@ const App = () => {
   };
 
   return (
-    <Router>
+    <>
       {isAuthenticated ? (
         <>
           <Navbar />
+          <Dashboard />
           <Routes>
-            <Route path="/" element={<div className="p-4">Welcome to Job Tracker!</div>} />
-            <Route path="/about" element={<div className="p-4">About Page</div>} />
-            <Route path="/services" element={<div className="p-4">Services Page</div>} />
-            <Route path="/contact" element={<div className="p-4">Contact Page</div>} />
-            <Route path="/register" element={<Register />} /> {/* Ensure Register component is rendered */}
+            <Route path="/*" element={<div></div>}>
+              <Route path="dashboard" element={<Dashboard />} />
+              
+            </Route>
           </Routes>
         </>
       ) : (
-        <Login onLogin={handleLogin} />
+        <Routes>
+          <Route path="/" element={<Login onLogin={handleLogin} />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login onLogin={handleLogin}/>} />
+        </Routes>
       )}
-    </Router>
+    </>
   );
 };
 

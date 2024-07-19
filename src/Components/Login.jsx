@@ -1,6 +1,9 @@
 /* eslint-disable react/no-unescaped-entities */
+import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -9,8 +12,9 @@ const Login = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [message, setMessage] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     let isValid = true;
@@ -30,11 +34,27 @@ const Login = ({ onLogin }) => {
     }
 
     if (isValid) {
-      // Perform authentication logic
-      if (email === 'user@example.com' && password === 'password') {
-        onLogin(true);
-      } else {
-        alert('Invalid credentials');
+      try {
+        const response = await fetch('http://localhost:5000/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          toast.success('Login successful!');
+          onLogin(true); // Call onLogin callback to update the login state
+          navigate('/'); // Redirect to dashboard or any other page
+        } else {
+          setMessage(data.message);
+        }
+      } catch (error) {
+        console.log(error.message);
+        setMessage('An error occurred');
       }
     }
   };
@@ -85,6 +105,7 @@ const Login = ({ onLogin }) => {
               <span className="absolute top-0 left-0 w-full h-full bg-[#f43d7e] transition-transform duration-300 transform scale-x-0 group-hover:scale-x-100"></span>
               Login
             </button>
+            {message && <p className="text-center text-md mt-4">{message}</p>}
             <div className="text-center mt-6">
               <p className="text-gray-600 text-md">
                 Don't have an account? <button onClick={redirectToRegister} className="text-blue-500 underline">Register</button>
@@ -93,8 +114,13 @@ const Login = ({ onLogin }) => {
           </div>
         </form>
       </div>
+      <ToastContainer />
     </div>
   );
+};
+
+Login.propTypes = {
+  onLogin: PropTypes.func.isRequired, // Ensure onLogin is required
 };
 
 export default Login;

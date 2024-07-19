@@ -1,8 +1,8 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import User from '../Models/Register.js';
+import User from '../models/Register.js';
 
-const registerUser = async (req, res) => {
+export const registerUser = async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -54,4 +54,41 @@ const registerUser = async (req, res) => {
   }
 };
 
-export default registerUser;
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ msg: 'Invalid email or password' });
+    }
+
+    // Compare password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ msg: 'Invalid email or password' });
+    }
+
+    // Generate JWT token
+    const payload = {
+      user: {
+        id: user._id,
+        email: user.email // Assuming your user model has _id field
+      },
+    };
+
+    jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      { expiresIn: '5m' }, 
+      (err, token) => {
+        if (err) throw err;
+        res.status(200).json({ user, token }); // Send the JWT as a response
+      }
+    );
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
